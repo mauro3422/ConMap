@@ -15,7 +15,11 @@ window.ZoomEngine = class {
       y: 0,
       isPanning: false,
       startX: 0,
-      startY: 0
+      startY: 0,
+      isPinching: false,
+      initialPinchDist: 0,
+      pinchCenterX: 0,
+      pinchCenterY: 0
     };
 
     this.config = {
@@ -101,41 +105,81 @@ window.ZoomEngine = class {
       }
     });
 
-    // --- TOUCH SUPPORT ---
+    // --- TOUCH SUPPORT (Panning 1 dedo + Pinch-to-Zoom 2 dedos) ---
     this.svg.addEventListener('touchstart', (e) => {
       if (!document.body.classList.contains('mode-interactive')) return;
+      e.preventDefault(); // Previene zoom nativo del navegador en todos los casos
+
+      const rect = this.svg.getBoundingClientRect();
+      const viewBox = this.svg.viewBox.baseVal;
+      this._screenToSvgScale = Math.max(viewBox.width / rect.width, viewBox.height / rect.height);
+
       if (e.touches.length === 1) {
-        const touch = e.touches[0];
+        // --- Modo: Paneo con 1 dedo ---
+        this.state.isPinching = false;
         this.state.isPanning = true;
-        const rect = this.svg.getBoundingClientRect();
-        const viewBox = this.svg.viewBox.baseVal;
-        this._screenToSvgScale = Math.max(viewBox.width / rect.width, viewBox.height / rect.height);
-        this.state.startX = touch.clientX;
-        this.state.startY = touch.clientY;
+        this.state.startX = e.touches[0].clientX;
+        this.state.startY = e.touches[0].clientY;
         this.state.initialX = this.state.x;
         this.state.initialY = this.state.y;
+      } else if (e.touches.length === 2) {
+        // --- Modo: Pinch-to-Zoom con 2 dedos ---
+        this.state.isPanning = false;
+        this.state.isPinching = true;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        this.state.initialPinchDist = Math.hypot(dx, dy);
+        // El punto focal es el centro entre los dos dedos
+        this.state.pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        this.state.pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
       }
     }, { passive: false });
 
     window.addEventListener('touchmove', (e) => {
-      if (!this.state.isPanning || e.touches.length !== 1) return;
-      e.preventDefault();
-      const touch = e.touches[0];
-      const dx = (touch.clientX - this.state.startX) * this._screenToSvgScale;
-      const dy = (touch.clientY - this.state.startY) * this._screenToSvgScale;
-      this.state.x = this.state.initialX + dx;
-      this.state.y = this.state.initialY + dy;
-      if (!this._ticking) {
-        requestAnimationFrame(() => {
-          this.apply();
-          this._ticking = false;
-        });
-        this._ticking = true;
+      if (!document.body.classList.contains('mode-interactive')) return;
+
+      if (this.state.isPanning && e.touches.length === 1) {
+        // --- Paneo activo ---
+        e.preventDefault();
+        const dx = (e.touches[0].clientX - this.state.startX) * this._screenToSvgScale;
+        const dy = (e.touches[0].clientY - this.state.startY) * this._screenToSvgScale;
+        this.state.x = this.state.initialX + dx;
+        this.state.y = this.state.initialY + dy;
+        if (!this._ticking) {
+          requestAnimationFrame(() => { this.apply(); this._ticking = false; });
+          this._ticking = true;
+        }
+      } else if (this.state.isPinching && e.touches.length === 2) {
+        // --- Pinch-to-Zoom activo ---
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const currentDist = Math.hypot(dx, dy);
+
+        // Delta incremental: diferencia respecto al fotograma anterior
+        const diff = currentDist - this.state.initialPinchDist;
+        this.zoomAt(diff * 0.008, this.state.pinchCenterX, this.state.pinchCenterY);
+
+        // Re-anclar la distancia para el siguiente frame (incremental, no acumulativo)
+        this.state.initialPinchDist = currentDist;
       }
     }, { passive: false });
 
-    window.addEventListener('touchend', () => {
-      this.state.isPanning = false;
+    window.addEventListener('touchend', (e) => {
+      if (e.touches.length < 2) this.state.isPinching = false;
+      if (e.touches.length === 0) {
+        this.state.isPanning = false;
+        return;
+      }
+      // Re-anclaje: si el usuario suelta 1 dedo y sigue arrastrando con el otro,
+      // reanudamos el paneo desde la posición actual para evitar "salto" visual.
+      if (e.touches.length === 1 && !this.state.isPinching) {
+        this.state.isPanning = true;
+        this.state.startX = e.touches[0].clientX;
+        this.state.startY = e.touches[0].clientY;
+        this.state.initialX = this.state.x;
+        this.state.initialY = this.state.y;
+      }
     });
   }
 

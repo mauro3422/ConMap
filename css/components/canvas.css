@@ -81,3 +81,33 @@ svg {
     height: 40px;
   }
 }
+
+/* Print Mode Optimization */
+@media print {
+  /* Ocultar interfaz UI */
+  .header, .legend, .zoom-controls, .book-btn, .footer-note, .view-toggle-btn {
+    display: none !important;
+  }
+  
+  /* Resetear Canvas para la hoja A4/PDF */
+  .canvas-wrap {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+  
+  /* Asegurar que el SVG escale en el papel */
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  body {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+  }
+}

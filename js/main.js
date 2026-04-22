@@ -46,6 +46,33 @@ window.APP = {
         this.zoom.center(this.engine.lastLayout.width, this.engine.lastLayout.height);
       }
     });
+
+    // Modo Impresión Automático (Light Theme)
+    window.addEventListener('beforeprint', () => {
+      this._previousTheme = window.CONFIG.themes.active;
+      window.CONFIG.themes.active = 'paper';
+      
+      const themeConfig = window.CONFIG.themes.paper.colors;
+      document.body.style.backgroundColor = themeConfig.background;
+      document.body.style.color = themeConfig.text;
+      
+      const canvas = document.querySelector('.canvas-wrap');
+      if (canvas) canvas.style.background = themeConfig.canvas;
+      
+      this.engine.run();
+    });
+
+    window.addEventListener('afterprint', () => {
+      window.CONFIG.themes.active = this._previousTheme || 'midnight';
+      
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
+      
+      const canvas = document.querySelector('.canvas-wrap');
+      if (canvas) canvas.style.background = '';
+      
+      this.engine.run();
+    });
   },
 
   start() {

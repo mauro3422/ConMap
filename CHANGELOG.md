@@ -4,9 +4,10 @@ Este es el registro maestro de evolución del sistema. Las versiones detalladas 
 
 ---
 
-## 🏗️ Historial de Versiones
+### 📜 Historial de Cambios
 
-### [v35.0 — "Snake Layout Engine"](./changelogs/v35.0-snake-layout.md)
+*   [v36.0 - Touch Zoom & Smart Print Mode](changelogs/v36.0-touch-and-print.md)
+*   [v35.0 - Snake Layout & Auto-Routing](changelogs/v35.0-snake-layout.md)
 *   **Fecha:** 22 de Abril, 2026
 *   **Hitos:** Cuadrícula S-Shape (Viborita 3x3), Flujo de Lectura Occidental (Bidireccional) y Optimización Topológica de Alturas (Zero-Gap).
 *   **Estado:** Producción / Final.

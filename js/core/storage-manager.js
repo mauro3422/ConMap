@@ -7,7 +7,8 @@ window.StorageManager = {
   CUSTOM_KEY: 'custom_topics',
 
   getAllTopics() {
-    const registry = window.TOPIC_REGISTRY || [];
+    const hidden = this.getHiddenRegistryIds();
+    const registry = (window.TOPIC_REGISTRY || []).filter(t => !hidden.includes(t.id));
     const custom = this.getCustomTopics();
     return [...registry, ...custom];
   },
@@ -39,6 +40,30 @@ window.StorageManager = {
 
   isCustom(id) {
     return id.toString().startsWith('custom-');
+  },
+
+  // Retorna true si el tema puede mostrarse con icóno de borrado
+  isDeletable(id) {
+    if (this.isCustom(id)) return true;
+    const topic = (window.TOPIC_REGISTRY || []).find(t => t.id === id);
+    return !!(topic && topic.deletable);
+  },
+
+  // IDs de temas del registry que el usuario ya eligió ocultar
+  HIDDEN_KEY: 'hidden_registry_topics',
+
+  getHiddenRegistryIds() {
+    try {
+      return JSON.parse(localStorage.getItem(this.HIDDEN_KEY) || '[]');
+    } catch { return []; }
+  },
+
+  hideRegistryTopic(id) {
+    const hidden = this.getHiddenRegistryIds();
+    if (!hidden.includes(id)) {
+      hidden.push(id);
+      localStorage.setItem(this.HIDDEN_KEY, JSON.stringify(hidden));
+    }
   },
 
   // Sincronización Multi-Pestaña

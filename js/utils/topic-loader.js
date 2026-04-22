@@ -37,9 +37,18 @@ window.TopicLoader = class {
 
   // ─── ACCIONES ─────────────────────────────────────────────────────────────
   _deleteTopic(id) {
-    window.StorageManager.deleteTopic(id);
+    // Si es un tema del registro (no custom), simplemente lo ocultamos para este usuario.
+    // Si es un tema creado por el usuario (custom-*), lo eliminamos de localStorage.
+    if (window.StorageManager.isCustom(id)) {
+      window.StorageManager.deleteTopic(id);
+    } else {
+      window.StorageManager.hideRegistryTopic(id);
+    }
+
+    // Si borramos el tema activo, volver al primero disponible (siempre Ciudadanía)
     if (this._activeId === id) {
-      this._load(window.TOPIC_REGISTRY[0].id);
+      const remaining = window.StorageManager.getAllTopics();
+      if (remaining.length > 0) this._load(remaining[0].id);
     }
     this._refreshUI(this._activeId);
     window.Notifications.show("Mapa eliminado correctamente", "error");

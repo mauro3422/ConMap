@@ -33,11 +33,11 @@ window.TopicMenu = class {
       item.className = `topic-dropdown-item ${topic.id === activeId ? 'active' : ''}`;
       item.dataset.id = topic.id;
       
-      const isCustom = window.StorageManager.isCustom(topic.id);
+      const isDeletable = window.StorageManager.isDeletable(topic.id);
       const purposeHtml = topic.purpose ? `<span class="purpose-badge">${topic.purpose}</span>` : '';
       
       item.innerHTML = `
-        ${isCustom ? `<button class="delete-topic-btn" title="Borrar mapa">🗑️</button>` : ''}
+        ${isDeletable ? `<button class="delete-topic-btn" title="Borrar mapa">🗑️</button>` : ''}
         <div class="topic-item-content">
           <span class="topic-item-emoji">${topic.emoji || '📄'}</span>
           <span class="topic-item-text">${topic.title} ${purposeHtml}</span>
@@ -52,7 +52,7 @@ window.TopicMenu = class {
         this.close();
       };
 
-      if (isCustom) {
+      if (isDeletable) {
         const delBtn = item.querySelector('.delete-topic-btn');
         delBtn.onclick = (e) => {
           e.preventDefault();

@@ -23,7 +23,8 @@ window.TOPIC_REGISTRY = [
     file: 'topics/el-estado.js',
     color: '#42e5c8',   // teal
     emoji: '🏛️',
-    rootTheme: 'teal'
+    rootTheme: 'teal',
+    deletable: true
   },
   {
     id: 'derechos-humanos',
@@ -33,6 +34,7 @@ window.TOPIC_REGISTRY = [
     file: 'topics/derechos-humanos.js',
     color: '#5dde8c',   // green
     emoji: '⚖️',
-    rootTheme: 'green'
+    rootTheme: 'green',
+    deletable: true
   }
 ];

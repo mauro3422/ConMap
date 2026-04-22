@@ -17,7 +17,7 @@ const LayoutStrategies = {
       );
       node.subtreeHeight = node.size.h + cfg.vStep + Math.max(...node.children.map(ch => ch.subtreeHeight));
     },
-    position: (node, x, y, cfg, positionNodesFn) => {
+    position: (node, x, y, cfg, nodeMap, positionNodesFn) => {
       const totalW = node.children.reduce((s, c) => s + c.subtreeWidth, 0);
       let startX = x - totalW / 2;
       
@@ -69,7 +69,15 @@ const LayoutStrategies = {
       // Si ya dio 3 pasos horizontales, toca dar una vuelta hacia abajo
       if (colStep === 2) {
         const cX = x; // Mantiene misma columna
-        const childY = y + (node.size.h / 2) + (cfg.vStep * 0.7) + (c.size.h / 2); 
+        
+        // Edge Case #2: Grid Row Height collision. Evita solapamientos si un nodo anterior de la fila es inmenso.
+        let maxRowHeight = node.size.h;
+        const p1 = nodeMap && node.parentId ? nodeMap[node.parentId] : null;
+        if (p1 && p1.themeName === node.themeName) maxRowHeight = Math.max(maxRowHeight, p1.size.h);
+        const p2 = p1 && p1.parentId ? nodeMap[p1.parentId] : null;
+        if (p2 && p2.themeName === node.themeName) maxRowHeight = Math.max(maxRowHeight, p2.size.h);
+
+        const childY = y + (maxRowHeight / 2) + (cfg.vStep * 0.7) + (c.size.h / 2); 
         positionNodesFn(c, cX, childY);
       } else {
         // Crecimiento recto horizontal
@@ -162,7 +170,7 @@ window.VerticalInfographicStrategy = class {
       const layoutType = this.getLayoutType(node);
       const strategy = LayoutStrategies[layoutType] || LayoutStrategies.vertical;
       
-      strategy.position(node, x, y, this.cfg, (child, cX, cY) => {
+      strategy.position(node, x, y, this.cfg, nodeMap, (child, cX, cY) => {
         this.positionNodes(child, nodeMap, cX, cY, bIdx);
       });
     }

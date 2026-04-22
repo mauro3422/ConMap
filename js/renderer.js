@@ -174,7 +174,16 @@ window.MapRenderer = class {
   drawSemanticConnection(f, t, label, color, nodesMaxX) {
     const v = window.CONFIG.visuals.links;
     const activeTheme = window.CONFIG.themes[window.CONFIG.themes.active];
-    const corridorX = nodesMaxX + v.corridorOffset;
+    
+    // Edge Case #3: Lluvia de Flechas (Anti-Collision visual). 
+    // Si hay muchas flechas semánticas cruzando el mapa, evitamos que se dibujen en la misma línea
+    // usando un hash de sus IDs para distribuirlas en el corredor lateral (Efecto "Mazo de Cables").
+    const strId = String(f.id) + String(t.id);
+    let hash = 0;
+    for (let i = 0; i < strId.length; i++) hash = strId.charCodeAt(i) + ((hash << 5) - hash);
+    const cableOffset = (Math.abs(hash) % 40) - 20; // Offset entre -20px y +20px
+    
+    const corridorX = nodesMaxX + v.corridorOffset + cableOffset;
     const d = `M ${f.pos.x + f.size.w/2} ${f.pos.y} L ${corridorX} ${f.pos.y} L ${corridorX} ${t.pos.y} L ${t.pos.x + t.size.w/2} ${t.pos.y}`;
     this.lLayer.appendChild(this.drawPath(d, activeTheme.colors.blue, v.semanticWidth, 'arr-blue', true));
     this.drawLabel(corridorX, (f.pos.y + t.pos.y) / 2, label, activeTheme.colors.blue, v.labelFontSize * v.semanticLabelFontMultiplier, 90);

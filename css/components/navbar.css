@@ -108,11 +108,17 @@
 .topic-item-emoji { font-size: 1.1rem; }
 .topic-item-text { font-weight: 600; color: #fff; font-size: 0.95rem; }
 
+.topic-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
 .topic-item-check {
   display: none;
   color: var(--accent-gold);
   font-weight: 900;
-  margin-left: auto;
 }
 
 .topic-dropdown-item.active .topic-item-check {

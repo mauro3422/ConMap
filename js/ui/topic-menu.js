@@ -37,11 +37,13 @@ window.TopicMenu = class {
       const purposeHtml = topic.purpose ? `<span class="purpose-badge">${topic.purpose}</span>` : '';
       
       item.innerHTML = `
-        ${isDeletable ? `<button class="delete-topic-btn" title="Borrar mapa">🗑️</button>` : ''}
         <div class="topic-item-content">
           <span class="topic-item-emoji">${topic.emoji || '📄'}</span>
           <span class="topic-item-text">${topic.title} ${purposeHtml}</span>
-          <span class="topic-item-check">✓</span>
+          <div class="topic-item-actions">
+            <span class="topic-item-check">✓</span>
+            ${isDeletable ? `<button class="delete-topic-btn" title="Borrar mapa">🗑️</button>` : ''}
+          </div>
         </div>
       `;
 

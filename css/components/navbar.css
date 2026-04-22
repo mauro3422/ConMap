@@ -1,0 +1,184 @@
+/**
+ * COMPONENT: Navigation Bar & Topic Menu
+ * Optimizado para interactividad suave y estética Premium.
+ */
+
+.sub-title-wrap { position: relative; }
+
+.book-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 12px;
+  color: var(--accent-gold);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+}
+
+.book-btn:hover { background: rgba(245,200,66,0.12); transform: scale(1.05); }
+.book-btn.open { background: rgba(245,200,66,0.15); transform: rotate(15deg); }
+
+.book-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--accent-gold);
+}
+
+/* Dropdown Menu */
+.topic-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  background: #0d1117;
+  border: 1px solid var(--border-muted);
+  border-radius: 18px;
+  margin-top: 16px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10000;
+  overflow: hidden;
+}
+
+.topic-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.topic-dropdown-label {
+  display: block;
+  padding: 16px 20px 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* Container de Items con Scroll */
+.topic-items-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px 0;
+  scrollbar-width: thin;
+}
+
+/* Estilo de cada Item */
+.topic-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 4px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.topic-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+
+.topic-dropdown-item.active {
+  background: rgba(245, 200, 66, 0.1) !important;
+  border-color: rgba(245, 200, 66, 0.3) !important;
+}
+
+.topic-item-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.topic-item-emoji { font-size: 1.1rem; }
+.topic-item-text { font-weight: 600; color: #fff; font-size: 0.95rem; }
+
+.topic-item-check {
+  display: none;
+  color: var(--accent-gold);
+  font-weight: 900;
+  margin-left: auto;
+}
+
+.topic-dropdown-item.active .topic-item-check {
+  display: block;
+}
+
+/* Botón Borrar */
+.delete-topic-btn {
+  background: rgba(255, 77, 77, 0.1) !important;
+  border: 1px solid rgba(255, 77, 77, 0.2) !important;
+  color: #ff4d4d;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-topic-btn:hover {
+  background: #ff4d4d !important;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Área de Acción Final */
+.dropdown-action {
+  padding: 16px;
+  border-top: 1px solid var(--border-muted);
+  background: rgba(1, 4, 9, 0.4);
+}
+
+.add-topic-btn {
+  background: rgba(93, 222, 140, 0.1);
+  color: #5dde8c;
+  border: 1px dashed rgba(93, 222, 140, 0.4);
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.add-topic-btn:hover {
+  background: var(--accent-green);
+  color: #0d1117;
+  border-style: solid;
+  transform: translateY(-2px);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+  .topic-dropdown {
+    width: calc(100vw - 20px);
+    position: fixed;
+    top: auto;
+    bottom: 20px;
+    left: 10px;
+    transform: translateY(20px);
+    border-radius: 24px;
+  }
+  .topic-dropdown.open { transform: translateY(0); }
+  .topic-dropdown-item { padding: 16px; }
+}

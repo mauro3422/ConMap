@@ -1,0 +1,177 @@
+/**
+ * CORE: Base Styles & Design Tokens
+ */
+
+:root {
+  --bg-color: #010409;
+  --canvas-bg: #0d1117;
+  --text-main: #e6edf3;
+  --text-dim: #848d97;
+  --accent-gold: #f5c842;
+  --accent-teal: #42e5c8;
+  --accent-green: #5dde8c;
+  --border-muted: #30363d;
+  --color-muted: #6b7a99;
+  --color-relation: #556080;
+  --color-footer: #484f58;
+  
+  /* Mobile Optimizations */
+  --touch-target: 48px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  padding: 20px 12px 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Header & Titles */
+.header { text-align: center; margin-bottom: 40px; width: 100%; max-width: 1200px; }
+
+h1 {
+  font-family: 'Crimson Pro', Georgia, serif;
+  color: var(--accent-gold);
+  font-size: clamp(2.5rem, 8vw, 4rem); /* Responsive font size */
+  font-weight: 700;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  line-height: 1.1;
+  margin: 0 auto;
+}
+
+.sub-title-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.sub-title {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.subject-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  background: rgba(245, 200, 66, 0.1);
+  border: 1px solid rgba(245, 200, 66, 0.3);
+  border-radius: 20px;
+  padding: 4px 14px;
+  transition: all 0.2s ease;
+}
+
+.subject-badge:hover {
+  background: rgba(245, 200, 66, 0.2);
+  border-color: var(--accent-gold);
+  transform: translateY(-1px);
+}
+
+/* Legend System */
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px 40px;
+  margin: 40px 0 60px;
+  flex-wrap: wrap;
+  background: rgba(13, 17, 23, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 20px 50px;
+  border-radius: 60px;
+  border: 1px solid var(--border-muted);
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* View Toggle Button (Modo Interactivo) */
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 100px;
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+  backdrop-filter: blur(8px);
+}
+
+.view-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-gold);
+  transform: translateY(-2px);
+}
+
+.view-toggle-btn.active {
+  background: rgba(245, 200, 66, 0.1);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  box-shadow: 0 0 15px rgba(245, 200, 66, 0.1);
+}
+.ld { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+.ld-gold { background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
+.ld-teal { background: var(--accent-teal); box-shadow: 0 0 10px var(--accent-teal); }
+.ld-green { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
+
+.legend-content {
+  display: flex;
+  align-items: center;
+  gap: 20px 30px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.legend-item:hover {
+  opacity: 0.8;
+  cursor: default;
+}
+
+.dash-line { 
+  border-top: 3px dashed var(--color-relation); 
+  width: 30px; 
+  display: inline-block; 
+}
+
+.ld-red { background: #ff7b72; box-shadow: 0 0 10px #ff7b72; }
+
+@media (max-width: 768px) {
+  .legend {
+    padding: 15px 25px;
+    border-radius: 24px;
+    gap: 15px 25px;
+    font-size: 0.9rem;
+  }
+}

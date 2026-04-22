@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plataforma de estudio avanzado con mapas conceptuales HD dinámicos y arquitectura modular.">
+  <title>Estudio Pro – Mapa Conceptual HD Dinámico</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700;900&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Modular Styles -->
+  <link rel="stylesheet" href="css/core/base.css">
+  <link rel="stylesheet" href="css/components/navbar.css">
+  <link rel="stylesheet" href="css/components/canvas.css">
+  <link rel="stylesheet" href="css/components/modals.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="sub-title-wrap">
+      <!-- Libro = trigger del dropdown de temas -->
+      <button class="book-btn" id="topicMenuBtn" aria-label="Seleccionar tema" title="Cambiar tema">
+        <svg class="book-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="9" y1="7" x2="15" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="9" y1="11" x2="13" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <p class="sub-title">Material de Estudio</p>
+      <span class="subject-badge">Formación Ética y Ciudadana</span>
+      <!-- Dropdown de temas (poblado por topic-loader.js) -->
+      <div class="topic-dropdown" id="topicDropdown"></div>
+    </div>
+    <h1>Ciudadanía y <br>Gobierno Digital</h1>
+  </header>
+
+
+
+  <div class="legend" id="mainLegend">
+    <!-- El contenido se genera dinámicamente según el mapa activo -->
+    <div id="dynamicLegend" class="legend-content"></div>
+    
+    <button id="viewModeToggle" class="view-toggle-btn" title="Alternar modo de vista">
+      <span>🔍</span> Modo Interactivo
+    </button>
+  </div>
+
+  <main class="canvas-wrap">
+    <svg id="map" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr-gold" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#f5c842" />
+        </marker>
+        <marker id="arr-teal" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#42e5c8" />
+        </marker>
+        <marker id="arr-green" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#5dde8c" />
+        </marker>
+        <marker id="arr-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#556080" />
+        </marker>
+        <marker id="arr-red" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#ff7b72" />
+        </marker>
+        <marker id="arr-muted" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#8b949e" />
+        </marker>
+      </defs>
+      
+      <g id="viewport">
+        <g id="links-layer"></g>
+        <g id="nodes-layer"></g>
+        <g id="labels-layer"></g>
+      </g>
+    </svg>
+
+    <!-- Zoom Controls -->
+    <div class="zoom-controls">
+      <button id="zoomIn" title="Acercar">+</button>
+      <button id="zoomOut" title="Alejar">−</button>
+      <button id="zoomReset" title="Restablecer">1:1</button>
+    </div>
+  </main>
+
+  <footer class="footer-note">
+    Mapa conceptual interactivo de alta definición optimizado para estudio y visualización vertical.
+    Arquitectura Modular v18.1 — Configurable, Tematizable y Escalable.
+  </footer>
+
+  <!-- Core Modules -->
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+  <!-- MODAL: Creador de Temas Premium -->
+  <div id="topicModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>✨ Nuevo Mapa Conceptual</h3>
+        <button id="closeModal" class="close-btn" title="Cerrar ventana">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <label for="newTopicTitle">Título del Mapa 💡</label>
+          <span class="help-text">El nombre principal que aparecerá en el centro.</span>
+          <input type="text" id="newTopicTitle" placeholder="Ej: Teoría de la Evolución" autofocus>
+        </div>
+        
+        <div class="input-group">
+          <label for="newTopicSubject">Materia o Categoría 📚</label>
+          <span class="help-text">Para organizar tus mapas en el menú.</span>
+          <input type="text" id="newTopicSubject" placeholder="Ej: Biología / Examen Final">
+        </div>
+
+        <div class="input-group">
+          <label for="newTopicPurpose">Propósito del Mapa 🎯</label>
+          <span class="help-text">Una etiqueta corta que define para qué sirve (ej: Repaso rápido).</span>
+          <input type="text" id="newTopicPurpose" placeholder="Ej: Resumen para el Lunes">
+        </div>
+
+        <div class="input-group">
+          <label>Definir Ramas Temáticas (Colores)</label>
+          <span class="help-text">Escribe el nombre para cada categoría de color (déjalo vacío si no la usas).</span>
+          
+          <div class="theme-input-wrap">
+            <div class="theme-input">
+              <span class="ld ld-gold"></span>
+              <input type="text" id="labelGold" placeholder="Ej: Teoría / Clásica">
+            </div>
+            <div class="theme-input">
+              <span class="ld ld-teal"></span>
+              <input type="text" id="labelTeal" placeholder="Ej: Práctica / Digital">
+            </div>
+            <div class="theme-input">
+              <span class="ld ld-green"></span>
+              <input type="text" id="labelGreen" placeholder="Ej: Casos / Gobierno">
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="customBranches">Nodos Adicionales (Separados por coma)</label>
+          <span class="help-text">Crea nodos extra conectados al centro (ej: Resumen, Glosario).</span>
+          <input type="text" id="customBranches" placeholder="Ej: Antecedentes, Críticas, Conclusión">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelTopic" class="btn-secondary">Cancelar</button>
+        <button id="confirmTopic" class="btn-primary">Crear Mapa Estructurado</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/core/event-bus.js"></script>
+    <script src="js/utils/geometry.js"></script>
+    <script src="js/utils/state.js"></script>
+    <script src="js/engine/layout-strategy.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/engine.js"></script>
+    <!-- Topic System -->
+    <script src="topics/topic-registry.js"></script>
+    <script src="js/core/storage-manager.js"></script>
+    <script src="js/ui/topic-menu.js"></script>
+    <script src="js/ui/creation-modal.js"></script>
+    <script src="js/ui/notifications.js"></script>
+    <script src="js/utils/topic-loader.js"></script>
+    <script src="js/utils/zoom-engine.js"></script>
+    <script src="js/utils/progress-manager.js"></script>
+    <script src="js/utils/view-manager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

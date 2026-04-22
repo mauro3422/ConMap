@@ -1,0 +1,83 @@
+/**
+ * COMPONENT: Canvas & Map Interaction
+ */
+
+.canvas-wrap {
+  width: 100%;
+  max-width: 1800px;
+  margin: 40px auto;
+  background: var(--canvas-bg);
+  position: relative;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+  border-radius: 40px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+svg { 
+  display: block; 
+  width: 100%; 
+  height: auto; 
+  transition: opacity 0.25s ease;
+  user-select: none;
+  touch-action: none; /* Crucial para gestos táctiles personalizados */
+}
+
+/* Zoom Controls */
+.zoom-controls {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.zoom-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoom-btn:hover {
+  background: var(--accent-gold);
+  color: #0d1117;
+  transform: scale(1.05);
+}
+
+.zoom-btn:active { transform: scale(0.95); }
+
+@media (max-width: 768px) {
+  .canvas-wrap {
+    margin: 20px 0;
+    border-radius: 20px;
+  }
+  
+  .zoom-controls {
+    bottom: 16px;
+    right: 16px;
+    padding: 8px;
+  }
+  
+  .zoom-btn {
+    width: 40px;
+    height: 40px;
+  }
+}

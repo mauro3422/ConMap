@@ -57,7 +57,7 @@ const LayoutStrategies = {
         node.subtreeHeight = Math.max(node.size.h, ch.subtreeHeight);
       }
     },
-    position: (node, x, y, cfg, positionNodesFn) => {
+    position: (node, x, y, cfg, nodeMap, positionNodesFn) => {
       const c = node.children[0];
       const stepIndex = node.level - 2; // Grecia es el paso 0
       const row = Math.floor(stepIndex / 3);

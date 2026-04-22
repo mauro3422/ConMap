@@ -6,6 +6,11 @@ Este es el registro maestro de evolución del sistema. Las versiones detalladas 
 
 ## 🏗️ Historial de Versiones
 
+### [v35.0 — "Snake Layout Engine"](./changelogs/v35.0-snake-layout.md)
+*   **Fecha:** 22 de Abril, 2026
+*   **Hitos:** Cuadrícula S-Shape (Viborita 3x3), Flujo de Lectura Occidental (Bidireccional) y Optimización Topológica de Alturas (Zero-Gap).
+*   **Estado:** Producción / Final.
+
 ### [v34.0 — "Ultra-HD & Visual Scaling"](./changelogs/v34.0-ultra-hd.md)
 *   **Fecha:** 22 de Abril, 2026
 *   **Hitos:** Escalado Ultra-HD (72px), Hitbox Dinámico (Zero Clipping), Líneas Estiradas y Fix de Inicialización.

@@ -49,12 +49,12 @@ class ConceptNode {
     
     const w = Math.max(v.minWidth, Math.max(titleW, contextW, detailsW, linesW) + v.widthPadding);
     
-    // Altura inteligente: sumamos todos los bloques con márgenes reales
-    const h = v.heightBase 
-            + (baseSize * v.titleLineHeight) 
-            + (this.context ? baseSize * to.contextSizeMultiplier + v.contextOffset : 0)
-            + (this.lines.length > 0 ? (this.lines.length * v.linesHeightPerItem) + to.linesStartOffset : 0)
-            + (this.details ? v.detailsHeight : 0);
+    // Altura inteligente: sumamos todos los bloques con sus espaciados reales configurados
+    let h = v.heightBase;
+    h += baseSize * v.titleLineHeight;
+    if (this.context) h += baseSize * to.contextSizeMultiplier + v.contextOffset;
+    if (this.lines.length > 0) h += (this.lines.length * to.lineSpacing) + to.linesStartOffset;
+    if (this.details) h += to.detailsFontSize + 50; // Margen dinámico inferior
     
     this.size = new window.Size(w, h);
     
@@ -110,11 +110,23 @@ window.ConceptMap = class {
     this.buildTree();
     if (this.nodes.length === 0) return;
 
+    // 1. Posicionamos nodos con la estrategia actual
     const layout = this.layoutStrategy.apply(this.nodes, this.nodeMap);
     this.lastLayout = layout; 
 
+    // 2. Cálculo de Bounding Box Real (para que nada se corte)
+    const padding = window.CONFIG.layout.canvasPadding || 800;
+    const minX = Math.min(...this.nodes.map(n => n.pos.x - n.size.w / 2)) - padding;
+    const minY = Math.min(...this.nodes.map(n => n.pos.y - n.size.h / 2)) - padding;
+    const maxX = Math.max(...this.nodes.map(n => n.pos.x + n.size.w / 2)) + padding;
+    const maxY = Math.max(...this.nodes.map(n => n.pos.y + n.size.h / 2)) + padding;
+
+    const realWidth = maxX - minX;
+    const realHeight = maxY - minY;
+
     this.renderer.clear();
-    this.renderer.setDimensions(layout.width, layout.height);
+    // Ajustamos el viewBox para que empiece en el minX/minY calculado
+    this.renderer.svg.setAttribute('viewBox', `${minX} ${minY} ${realWidth} ${realHeight}`);
 
     this.drawLinks(layout);
     this.drawNodes();
@@ -138,29 +150,11 @@ window.ConceptMap = class {
       const color = f.color;
 
       if (l.dashed || l.type === 'semantic') {
-        const corridorX = nodesMaxX + 180; // Anclado cerca de los nodos
-        const d = `M ${f.pos.x + f.size.w/2} ${f.pos.y} L ${corridorX} ${f.pos.y} L ${corridorX} ${t.pos.y} L ${t.pos.x + t.size.w/2} ${t.pos.y}`;
-        this.renderer.lLayer.appendChild(this.renderer.drawPath(d, activeTheme.colors.blue, v.semanticWidth, 'arr-blue', true));
-        this.renderer.drawLabel(corridorX, (f.pos.y + t.pos.y) / 2, l.label, activeTheme.colors.blue, v.labelFontSize * v.semanticLabelFontMultiplier);
+        this.renderer.drawSemanticConnection(f, t, l.label, color, nodesMaxX);
       } else if (f.level === 0) {
-        const corridorX = nodesMinX - 180; // Anclado cerca de los nodos por la izquierda
-        const d = `M ${f.pos.x} ${f.pos.y + f.size.h/2} L ${f.pos.x} ${f.pos.y + f.size.h/2 + v.rootLinkDrop} L ${corridorX} ${f.pos.y + f.size.h/2 + v.rootLinkDrop} L ${corridorX} ${t.pos.y} L ${t.pos.x - t.size.w/2 - v.rootLinkTailGap} ${t.pos.y}`;
-        this.renderer.lLayer.appendChild(this.renderer.drawPath(d, color, v.rootWidth, marker));
-        this.renderer.drawLabel(corridorX + v.rootLabelXOffset, t.pos.y - v.labelPadding, l.label, color, v.labelFontSize);
+        this.renderer.drawRootConnection(f, t, l.label, color, nodesMinX, marker);
       } else {
-        const drop = v.conceptLinkDrop || 0;
-        const y1 = f.pos.y + f.size.h/2;
-        const y2 = t.pos.y - t.size.h/2 - v.conceptLinkGap;
-        
-        // Camino: Inicio -> Tramo Recto (Drop) -> Curva Bezier -> Destino
-        const d = `M ${f.pos.x} ${y1} 
-                   L ${f.pos.x} ${y1 + drop} 
-                   C ${f.pos.x} ${y1 + drop + (y2 - (y1 + drop)) * v.bezierFactor}, 
-                     ${t.pos.x} ${y1 + drop + (y2 - (y1 + drop)) * v.bezierFactor}, 
-                     ${t.pos.x} ${y2}`;
-                     
-        this.renderer.lLayer.appendChild(this.renderer.drawPath(d, color, v.conceptWidth, marker));
-        this.renderer.drawLabel(t.pos.x, t.pos.y - t.size.h/2 - v.conceptLabelGap, l.label, color, v.labelFontSize * v.conceptLabelFontMultiplier);
+        this.renderer.drawHierarchicalConnection(f, t, l.label, color, marker);
       }
     });
   }
@@ -219,9 +213,10 @@ window.ConceptMap = class {
         currentY += (n.lines.length * v.lineSpacing);
       }
       
-      // 4. Detalles (fijados al final con su propio offset)
+      // 4. Detalles (fijados dinámicamente al flujo vertical real)
       if (n.details) {
-        const tDet = this.renderer.drawText(n.pos.x, n.pos.y + n.size.h/2 - v.details, n.details, v.detailsFontSize, n.color, themeCfg.fonts.body, '800');
+        currentY += 50; 
+        const tDet = this.renderer.drawText(n.pos.x, currentY, n.details, v.detailsFontSize, n.color, themeCfg.fonts.body, '800');
         tDet.setAttribute('opacity', nodeCfg.detailsOpacity);
         g.appendChild(tDet);
       }

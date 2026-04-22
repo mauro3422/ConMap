@@ -90,7 +90,7 @@ window.MapRenderer = class {
     return path;
   }
 
-  drawLabel(x, y, text, color, fontSize) {
+  drawLabel(x, y, text, color, fontSize, rotation = 0) {
     if (!text) return;
     const v = window.CONFIG.visuals.labels;
     const w = text.length * (fontSize * v.widthFactor) + v.widthPadding;
@@ -103,15 +103,88 @@ window.MapRenderer = class {
     rect.setAttribute('height', v.rectHeight);
     rect.setAttribute('rx', v.rectRx);
     rect.setAttribute('fill', this.theme.colors.canvas);
-    rect.setAttribute('fill-opacity', '0.9');
+    rect.setAttribute('fill-opacity', '1.0'); // Opacidad total para ocultar la línea
     rect.setAttribute('stroke', this.theme.colors.muted);
     rect.setAttribute('stroke-width', '1');
     
     const txt = this.drawText(x, y + v.textYOffset, text, fontSize, color, this.theme.fonts.body, '900');
     txt.setAttribute('font-style', 'italic');
 
+    if (rotation !== 0) {
+      g.setAttribute('transform', `rotate(${rotation}, ${x}, ${y})`);
+    }
+
     g.appendChild(rect);
     g.appendChild(txt);
     this.lblLayer.appendChild(g);
   }
-};
+
+  drawHierarchicalConnection(f, t, label, color, marker) {
+    const v = window.CONFIG.visuals.links;
+    const drop = v.conceptLinkDrop || 0;
+    const y1 = f.pos.y + f.size.h/2;
+    const y2 = t.pos.y - t.size.h/2; // Destino real: borde superior del nodo
+    const tail = 20; // Pequeño tramo recto al final para que la flecha entre vertical
+    
+    const P0 = { x: f.pos.x, y: y1 + drop };
+    const P1 = { x: f.pos.x, y: y1 + drop + (y2 - tail - (y1 + drop)) * v.bezierFactor };
+    const P2 = { x: t.pos.x, y: y1 + drop + (y2 - tail - (y1 + drop)) * v.bezierFactor };
+    const P3 = { x: t.pos.x, y: y2 - tail };
+
+    const midX = 0.125 * P0.x + 0.375 * P1.x + 0.375 * P2.x + 0.125 * P3.x;
+    const midY = 0.125 * P0.y + 0.375 * P1.y + 0.375 * P2.y + 0.125 * P3.y;
+
+    const dx = 1.5 * (t.pos.x - f.pos.x);
+    const dy = 0.75 * (y2 - tail - (y1 + drop));
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    
+    if (Math.abs(angle) > 45) angle = 0;
+    else {
+      if (angle > 90) angle -= 180;
+      if (angle < -90) angle += 180;
+    }
+
+    // Detector Automático de Flujo Horizontal (Timeline Bidireccional)
+    if (f.pos.y === t.pos.y) {
+      const isRight = t.pos.x > f.pos.x; // ¿Fluye hacia la derecha?
+      
+      const x1 = isRight ? f.pos.x + f.size.w/2 : f.pos.x - f.size.w/2;
+      const y1 = f.pos.y;
+      const x2 = isRight ? t.pos.x - t.size.w/2 : t.pos.x + t.size.w/2;
+      const y2 = t.pos.y;
+      
+      const P1 = { x: x1 + (x2 - x1) * 0.4, y: y1 };
+      const P2 = { x: x1 + (x2 - x1) * 0.6, y: y2 };
+
+      const midX = (x1 + x2) / 2;
+      const midY = y1;
+
+      const d = `M ${x1} ${y1} C ${P1.x} ${P1.y}, ${P2.x} ${P2.y}, ${x2} ${y2}`;
+      this.lLayer.appendChild(this.drawPath(d, color, v.conceptWidth, marker));
+      this.drawLabel(midX, midY - 60, label, color, v.labelFontSize * v.conceptLabelFontMultiplier, 0);
+      return;
+    }
+
+    // Flujo Vertical Tradicional
+    const d = `M ${f.pos.x} ${y1} L ${f.pos.x} ${y1 + drop} C ${P1.x} ${P1.y}, ${P2.x} ${P2.y}, ${P3.x} ${P3.y} L ${t.pos.x} ${y2}`;
+    this.lLayer.appendChild(this.drawPath(d, color, v.conceptWidth, marker));
+    this.drawLabel(midX, midY, label, color, v.labelFontSize * v.conceptLabelFontMultiplier, angle);
+  }
+
+  drawSemanticConnection(f, t, label, color, nodesMaxX) {
+    const v = window.CONFIG.visuals.links;
+    const activeTheme = window.CONFIG.themes[window.CONFIG.themes.active];
+    const corridorX = nodesMaxX + v.corridorOffset;
+    const d = `M ${f.pos.x + f.size.w/2} ${f.pos.y} L ${corridorX} ${f.pos.y} L ${corridorX} ${t.pos.y} L ${t.pos.x + t.size.w/2} ${t.pos.y}`;
+    this.lLayer.appendChild(this.drawPath(d, activeTheme.colors.blue, v.semanticWidth, 'arr-blue', true));
+    this.drawLabel(corridorX, (f.pos.y + t.pos.y) / 2, label, activeTheme.colors.blue, v.labelFontSize * v.semanticLabelFontMultiplier, 90);
+  }
+
+  drawRootConnection(f, t, label, color, nodesMinX, marker) {
+    const v = window.CONFIG.visuals.links;
+    const corridorX = nodesMinX - v.corridorOffset;
+    const d = `M ${f.pos.x} ${f.pos.y + f.size.h/2} L ${f.pos.x} ${f.pos.y + f.size.h/2 + v.rootLinkDrop} L ${corridorX} ${f.pos.y + f.size.h/2 + v.rootLinkDrop} L ${corridorX} ${t.pos.y} L ${t.pos.x - t.size.w/2 - v.rootLinkTailGap} ${t.pos.y}`;
+    this.lLayer.appendChild(this.drawPath(d, color, v.rootWidth, marker));
+    this.drawLabel(corridorX, (f.pos.y + f.size.h/2 + v.rootLinkDrop + t.pos.y) / 2, label, color, v.labelFontSize, 90);
+  }
+}
